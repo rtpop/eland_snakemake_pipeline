@@ -31,17 +31,6 @@ OUT <- opt$output
 source(file.path("src", "utils", "consolidate_benchmark_fn.R"))
 
 ## Consolidate data
-df_list <- lapply(input_files, function(file) {
-    if (!file.exists(file)) {
-        stop(paste("The file", file, "does not exist."))
-    }
-    prepare_filtering_bench(file_name = file, tissue_type = TISSUE_TYPE)
-    })
-    consolidated_df <- data.table::rbindlist(df_list)
-
-# Save the consolidated data frame
-data.table::fwrite(consolidated_df, file = DATA_FRAME, sep = "\t", row.names = FALSE)
-
-consolidated_data <- consolidate_data(df_list, OUT)
+consolidated_data <- consolidate_data(input_files, OUT)
 
 # End of the script

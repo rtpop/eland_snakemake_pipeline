@@ -312,8 +312,7 @@ rule consolidate_benchmark_all:
         filtering_benchmark_consolidated=FILTERING_BENCH_CONSOLIDATED
     params:
         script=os.path.join(SRC, "utils/consolidate_benchmark.R"),
-        files=lambda wildcards, input: ",".join(input.filtering_bench_dfs)
-    container:
+        files=lambda wildcards, input: ",".join(input.filtering_bench_dfs)    container:
         R_CONTAINER
     message:
         "; Consolidating all benchmark data with script {params.script}"
