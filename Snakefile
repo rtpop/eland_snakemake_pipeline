@@ -292,7 +292,7 @@ rule consolidate_benchmark_resolutions:
         "; Consolidating benchmark data for {wildcards.tissue_type} with script {params.script}"
     shell:
         """
-        Rscript {params.script} --files "{params.files}" --output {output.filtering_bench_df}
+        Rscript {params.script} --files "{params.files}" --output {output.filtering_bench_df} --tissue {wildcards.tissue_type}
         """
 
 rule consolidate_benchmark_all:
