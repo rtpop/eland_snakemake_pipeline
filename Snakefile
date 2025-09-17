@@ -73,6 +73,8 @@ if BENCHMARK:
     FILTERING_METHOD = "both"  # always run both for benchmarking
     FILTERING_BENCH_DF = os.path.join(BENCHMARK_DIR, "filtering_benchmark_df.txt")
     FILTERING_BENCH_CONSOLIDATED = os.path.join(OUTPUT_DIR, "filtering_benchmark_consolidated.txt")
+    BENCHMARK_PLOT = os.path.join(BENCHMARK_DIR, "filtering_benchmark_plot.pdf")
+    UNFILTERED = config["plot_unfiltered"]
 
 # set filtering params
 if FILTERING_METHOD == "both":
@@ -101,7 +103,8 @@ rule all:
         expand(PANDA_NET_FILTERED, tissue_type = TISSUE), \
         *( [expand(FILTERING_BENCH, tissue_type = TISSUE, bench_resolution = BENCH_RESOLUTION)] if config["benchmark"] else [] ), \
         *( [expand(FILTERING_BENCH_DF, tissue_type = TISSUE)] if config["benchmark"] else [] ), \
-        FILTERING_BENCH_CONSOLIDATED
+        FILTERING_BENCH_CONSOLIDATED, \
+        *( [expand(BENCHMARK_PLOT, tissue_type = TISSUE)] if config["benchmark"] else [] )
         # temp ones so I don't have to rerun everything all the time
 
 ## ---------------------------- ##
@@ -312,7 +315,8 @@ rule consolidate_benchmark_all:
         filtering_benchmark_consolidated=FILTERING_BENCH_CONSOLIDATED
     params:
         script=os.path.join(SRC, "utils/consolidate_benchmark.R"),
-        files=lambda wildcards, input: ",".join(input.filtering_bench_dfs)    container:
+        files=lambda wildcards, input: ",".join(input.filtering_bench_dfs)    
+    container:
         R_CONTAINER
     message:
         "; Consolidating all benchmark data with script {params.script}"
@@ -321,55 +325,51 @@ rule consolidate_benchmark_all:
         Rscript {params.script} --files "{params.files}" --output {output.filtering_benchmark_consolidated}
         """
 
-# rule plot_benchmark:
-#     """
-#     This rule plots the benchmark data.
+rule plot_benchmark:
+    """
+    This rule plots the benchmark data.
 
-#     Inputs
-#     ------
-#     FILTERING_BENCH_LIST:
-#         A list of TXT files with the benchmark data for all resolutions.
-#     ------
-#     Outputs
-#     -------
-#     BENCHMARK_PLOT:
-#         A PDF file with the benchmark plot.
-#     """
-#     input:
-#         filtering_bench_list=expand(FILTERING_BENCH, tissue_type="{tissue_type}", bench_resolution=BENCH_RESOLUTION)
-#     output:
-#         benchmark_plot=FILTERING_BENCH_PLOT
-#     params:
-#         script=os.path.join(SRC, "analysis", "plot_filtering_bench.R"), \
-#         out_dir=os.path.join(BENCHMARK_DIR), \
-#         tissue_type="{tissue_type}", \
-#         data_frame=os.path.join(BENCHMARK_DIR, "filtering_benchmark_df.txt"), \
-#         plot_type="all", \
-#         plot_title="Filtering benchmark for {tissue_type}", \
-#         files=lambda wildcards, input: ",".join(input.filtering_bench_list), \
-#         include_unfiltered=UNFILTERED
-#     container:
-#         ANALYSIS_CONTAINER
-#     message:
-#         "; Plotting benchmark data with script {params.script} for tissue {wildcards.tissue_type} with params:" \
-#             "--files {params.files}" \
-#             "--output-dir {params.out_dir}" \
-#             "--tissue-type {params.tissue_type}" \
-#             "--data-frame {params.data_frame}" \
-#             "--plot-type {params.plot_type}" \
-#             "--plot-title {params.plot_title}"
-#     shell:
-#         """
-#         Rscript {params.script} \
-#             --files "{params.files}" \
-#             --output-dir {params.out_dir} \
-#             --tissue-type {params.tissue_type} \
-#             --data-frame {params.data_frame} \
-#             --plot-type {params.plot_type} \
-#             --plot-title "{params.plot_title}" \
-#             --plot-file {output.benchmark_plot} \
-#             --include-unfiltered {params.include_unfiltered}
-#         """
+    Inputs
+    ------
+    FILTERING_BENCH_LIST:
+        A list of TXT files with the benchmark data for all resolutions.
+    ------
+    Outputs
+    -------
+    BENCHMARK_PLOT:
+        A PDF file with the benchmark plot.
+    """
+    input:
+        filtering_bench_dfs=expand(FILTERING_BENCH_DF, tissue_type=TISSUE)
+    output:
+        benchmark_plot=BENCHMARK_PLOT
+    params:
+        script=os.path.join(SRC, "analysis", "plot_filtering_bench.R"), \
+        out_dir=os.path.join(BENCHMARK_DIR), \
+        tissue_type="{tissue_type}", \
+        plot_type="all", \
+        plot_title="Filtering benchmark for {tissue_type}", \
+        files=lambda wildcards, input: ",".join(input.filtering_bench_dfs), \
+        include_unfiltered=UNFILTERED
+    container:
+        R_CONTAINER
+    message:
+        "; Plotting benchmark data with script {params.script} for tissue {wildcards.tissue_type} with params:" \
+            "--output-dir {params.out_dir}" \
+            "--tissue-type {params.tissue_type}" \
+            "--plot-type {params.plot_type}" \
+            "--plot-title {params.plot_title}"
+    shell:
+        """
+        Rscript {params.script} \
+            --input "{input.filtering_bench_dfs}" \
+            --output-dir {params.out_dir} \
+            --tissue-type {params.tissue_type} \
+            --plot-type {params.plot_type} \
+            --plot-title "{params.plot_title}" \
+            --plot-file {output.benchmark_plot} \
+            --include-unfiltered {params.include_unfiltered}
+        """
 
 # rule plot_bench_heatmap:
 #     """
