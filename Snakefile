@@ -90,6 +90,18 @@ elif FILTERING_METHOD == "hedgehog":
 else:
     raise ValueError("Unknown filtering method: {}".format(FILTERING_METHOD))
 
+## ------- ##
+## BiHiDeF ##
+## ------- ##
+BIHIDEF_DIR = os.path.join(HEDGEHOG_DIR, "bihidef")
+MAX_RESOLUTION = config["max_resolution"]
+MAX_COMMUNITIES = config["max_communities"]
+REG_TAG = config["regulator_tag"]
+TAR_TAG = config["target_tag"]
+BIHIDEF_RUN_DIR = os.path.join(BIHIDEF_DIR, "C" + str(MAX_COMMUNITIES) + "_R" + str(MAX_RESOLUTION))
+GENE_COMMUNITIES = os.path.join(BIHIDEF_RUN_DIR, "gene_communities.txt")
+
+
 ##-------##
 ## RULES ##
 ##-------##
@@ -100,13 +112,15 @@ else:
 
 rule all:
     input:
-        PROCESS_GTEX_LOG, \
-        expand(PANDA_NET_FILTERED, tissue_type = TISSUE), \
+        # PROCESS_GTEX_LOG, \
+        # expand(PANDA_NET_FILTERED, tissue_type = TISSUE), \
         *( [expand(FILTERING_BENCH, tissue_type = TISSUE, bench_resolution = BENCH_RESOLUTION)] if config["benchmark"] else [] ), \
         *( [expand(FILTERING_BENCH_DF, tissue_type = TISSUE)] if config["benchmark"] else [] ), \
         FILTERING_BENCH_CONSOLIDATED, \
         *( [expand(BENCHMARK_PLOT, tissue_type = TISSUE)] if config["benchmark"] else [] ), \
-        FILTERING_HEATMAP
+        FILTERING_HEATMAP, \
+        expand(GENE_COMMUNITIES, tissue_type = TISSUE)
+
         # temp ones so I don't have to rerun everything all the time
 
 ## ---------------------------- ##
@@ -407,44 +421,44 @@ rule plot_bench_heatmap:
         Rscript {params.script} --input "{input.filtering_bench_df}" --output {output.benchmark_heatmap} --metric {params.metric} --filtering "{params.filtering_method}" --separate_files {params.separate_files}
         """
 
-# # --------------- ##
-# # Running BiHiDeF ##
-# # --------------- ##
+## --------------- ##
+## Running BiHiDeF ##
+## --------------- ##
 
-# rule run_bihidef:
-#     """
-#     This rule runs the BiHiDeF algorithm.
+rule run_bihidef:
+    """
+    This rule runs the BiHiDeF algorithm.
 
-#     BiHiDeF is available at
-#     """
-#     input:
-#         PANDA_NET_FILTERED
-#     output:
-#         gene_communities = GENE_COMMUNITIES
-#     params:
-#         run_script = os.path.join(SRC, "eland/run_bihidef.py"), \
-#         measure_script = os.path.join(SRC, "utils/measure_resources.py"), \
-#         max_communities = MAX_COMMUNITIES, \
-#         max_resolution = MAX_RESOLUTION, \
-#         output_prefix_reg = REG_TAG, \
-#         output_prefix_target = TAR_TAG, \
-#         out_dir = BIHIDEF_RUN_DIR, \
-#         log_file = os.path.join(BIHIDEF_RUN_DIR, "run_log.log")
-#     container:
-#         PYTHON_CONTAINER
-#     message:
-#         "; Running BiHiDeF on {input} with params:" \
-#             "--comm_mult {params.max_communities}" \
-#             "--max_res {params.max_resolution}" \
-#             "--output_dir {params.out_dir}" \
-#             "--output_prefix_reg {params.output_prefix_reg}" \
-#             "--output_prefix_tar {params.output_prefix_target}"
-#     shell:
-#         """
-#         mkdir -p {params.out_dir}
-#         python {params.measure_script} {params.log_file} "python {params.run_script} {input} --comm_mult {params.max_communities} --max_res {params.max_resolution} \
-#         --output_dir {params.out_dir} --output_prefix_reg {params.output_prefix_reg} --output_prefix_tar {params.output_prefix_target}"
-#         """
+    BiHiDeF is available at
+    """
+    input:
+        PANDA_NET_FILTERED
+    output:
+        gene_communities = GENE_COMMUNITIES
+    params:
+        run_script = os.path.join(SRC, "hedgehog/run_bihidef.py"), \
+        measure_script = os.path.join(SRC, "utils/measure_resources.py"), \
+        max_communities = MAX_COMMUNITIES, \
+        max_resolution = MAX_RESOLUTION, \
+        output_prefix_reg = REG_TAG, \
+        output_prefix_target = TAR_TAG, \
+        out_dir = BIHIDEF_RUN_DIR, \
+        log_file = os.path.join(BIHIDEF_RUN_DIR, "run_log.log")
+    container:
+        PYTHON_CONTAINER
+    message:
+        "; Running BiHiDeF on {input} with params:" \
+            "--comm_mult {params.max_communities}" \
+            "--max_res {params.max_resolution}" \
+            "--output_dir {params.out_dir}" \
+            "--output_prefix_reg {params.output_prefix_reg}" \
+            "--output_prefix_tar {params.output_prefix_target}"
+    shell:
+        """
+        mkdir -p {params.out_dir}
+        python {params.measure_script} {params.log_file} "python {params.run_script} {input} --comm_mult {params.max_communities} --max_res {params.max_resolution} \
+        --output_dir {params.out_dir} --output_prefix_reg {params.output_prefix_reg} --output_prefix_tar {params.output_prefix_target}"
+        """
 
 # ## --------------------- ##
 # ## Selecting communities ##
