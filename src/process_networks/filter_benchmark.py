@@ -61,7 +61,7 @@ def main():
     
     # Create a DataFrame to store the results
     results = pd.DataFrame({
-        'Network': ['ELAND filtered PANDA', 'Prior filtered', 'Unfiltered'],
+        'Network': ['HEDGEHOG filtered PANDA', 'Prior filtered', 'Unfiltered'],
         'Modularity': [modularity_hedgehog, modularity_prior, modularity_unfiltered],
         'Density': [density_hedgehog, density_prior, density_unfiltered],
         'Number of Edges': [num_edges_hedgehog, num_edges_prior, num_edges_unfiltered],
