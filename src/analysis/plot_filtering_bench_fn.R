@@ -104,7 +104,7 @@ plot_heatmap <- function(df, output_file, metric = "Modularity", filtering = "Pr
   custom_label <- function(breaks) {
     labels <- scales::number(breaks, accuracy = 0.01)
     labels[1] <- "≤ 0"
-    labels
+    return(labels)
   }
   
   # Plot: x = tissue, y = resolution, fill = metric, facet by Network

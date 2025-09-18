@@ -69,12 +69,13 @@ if BENCHMARK:
     BENCHMARK_DIR = os.path.join(HEDGEHOG_DIR, "benchmark")
     MAX_COMMUNITIES = config["max_communities"]
     BENCH_RESOLUTION = config["bench_resolution"]
+    UNFILTERED = config["plot_unfiltered"]
     FILTERING_BENCH = os.path.join(BENCHMARK_DIR, "filtering_benchmark_res_{bench_resolution}.txt")
     FILTERING_METHOD = "both"  # always run both for benchmarking
     FILTERING_BENCH_DF = os.path.join(BENCHMARK_DIR, "filtering_benchmark_df.txt")
     FILTERING_BENCH_CONSOLIDATED = os.path.join(OUTPUT_DIR, "filtering_benchmark_consolidated.txt")
     BENCHMARK_PLOT = os.path.join(BENCHMARK_DIR, "filtering_benchmark_plot.pdf")
-    UNFILTERED = config["plot_unfiltered"]
+    FILTERING_HEATMAP = os.path.join(OUTPUT_DIR, "filtering_benchmark_heatmaps")
 
 # set filtering params
 if FILTERING_METHOD == "both":
@@ -104,7 +105,8 @@ rule all:
         *( [expand(FILTERING_BENCH, tissue_type = TISSUE, bench_resolution = BENCH_RESOLUTION)] if config["benchmark"] else [] ), \
         *( [expand(FILTERING_BENCH_DF, tissue_type = TISSUE)] if config["benchmark"] else [] ), \
         FILTERING_BENCH_CONSOLIDATED, \
-        *( [expand(BENCHMARK_PLOT, tissue_type = TISSUE)] if config["benchmark"] else [] )
+        *( [expand(BENCHMARK_PLOT, tissue_type = TISSUE)] if config["benchmark"] else [] ), \
+        FILTERING_HEATMAP
         # temp ones so I don't have to rerun everything all the time
 
 ## ---------------------------- ##
@@ -325,6 +327,7 @@ rule consolidate_benchmark_all:
         Rscript {params.script} --files "{params.files}" --output {output.filtering_benchmark_consolidated}
         """
 
+## this plot was not included in the paper
 rule plot_benchmark:
     """
     This rule plots the benchmark data.
@@ -371,36 +374,38 @@ rule plot_benchmark:
             --include-unfiltered {params.include_unfiltered}
         """
 
-# rule plot_bench_heatmap:
-#     """
-#     This rule plots the benchmark heatmap.
+rule plot_bench_heatmap:
+    """
+    This rule plots the benchmark heatmap.
 
-#     Inputs
-#     ------
-#     FILTERING_BENCH_CONSOLIDATED:
-#         A TXT file with the consolidated benchmark data.
-#     ------
-#     Outputs
-#     -------
-#     BENCHMARK_HEATMAP:
-#         A PDF file with the benchmark heatmap.
-#     """
-#     input:
-#         filtering_bench_df = FILTERING_BENCH_CONSOLIDATED
-#     output:
-#         benchmark_heatmap = FILTERING_HEATMAP
-#     params:
-#         script = os.path.join(SRC, "analysis/plot_filtering_bench_heatmap.R"), \
-#         metric = "Modularity",  \
-#         filtering_method = "Prior filtered"
-#     container:
-#         ANALYSIS_CONTAINER
-#     message:
-#         "; Plotting benchmark heatmap with script {params.script}"
-#     shell:
-#         """
-#         Rscript {params.script} --input "{input.filtering_bench_df}" --output {output.benchmark_heatmap} --metric {params.metric} --filtering "{params.filtering_method}"
-#         """
+    Inputs
+    ------
+    FILTERING_BENCH_CONSOLIDATED:
+        A TXT file with the consolidated benchmark data.
+    ------
+    Outputs
+    -------
+    BENCHMARK_HEATMAP:
+        A PDF file with the benchmark heatmap.
+    """
+    input:
+        filtering_bench_df = FILTERING_BENCH_CONSOLIDATED
+    output:
+        benchmark_heatmap = FILTERING_HEATMAP
+    params:
+        script = os.path.join(SRC, "analysis/plot_filtering_bench_heatmap.R"), \
+        metric = "Modularity",  \
+        filtering_method = "all", \
+        separate_files = True
+    container:
+        R_CONTAINER
+    message:
+        "; Plotting benchmark heatmap with script {params.script}"
+    shell:
+        """
+        mkdir -p {output.benchmark_heatmap}
+        Rscript {params.script} --input "{input.filtering_bench_df}" --output {output.benchmark_heatmap} --metric {params.metric} --filtering "{params.filtering_method}" --separate_files {params.separate_files}
+        """
 
 # # --------------- ##
 # # Running BiHiDeF ##
