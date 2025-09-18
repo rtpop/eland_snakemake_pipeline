@@ -42,7 +42,7 @@ if ( is.null(opt$`output-dir`) || is.null(opt$`tissue-type`)) {
 }
 
 # Parse the input files
-input_files <- strsplit(opt$`input`, ",")[[1]]
+input_files <- strsplit(opt$`input`, " ")[[1]]
 
 # Check if the output directory exists, if not create it
 if (!dir.exists(opt$`output-dir`)) {
@@ -75,5 +75,9 @@ if (PLOT_TITLE == "") {
 source(file.path("src", "analysis", "plot_filtering_bench_fn.R"))
 
 ## Plot the consolidated data
-plot_filtering_bench(df = INPUT, output_dir = OUT_DIR, plot_type = PLOT_TYPE, plot_title = PLOT_TITLE, plot_file = PLOT_FILE, include_unfiltered = UNFILTERED)
+# Read the input data frames
+data_frames <- lapply(input_files, fread)
+
+# plot for each data frame
+lapply(data_frames, plot_filtering_bench, output_dir = OUT_DIR, plot_type = PLOT_TYPE, plot_title = PLOT_TITLE, plot_file = PLOT_FILE, include_unfiltered = UNFILTERED)
 

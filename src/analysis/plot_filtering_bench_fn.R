@@ -22,10 +22,6 @@
 #' 
 
 plot_filtering_bench <- function(df, output_dir, plot_type = "all", plot_title = NULL, plot_file = "filtering_benchmark_plot.pdf", include_unfiltered = TRUE) {
-  # Load RColorBrewer for color palettes
-  if (!requireNamespace("RColorBrewer", quietly = TRUE)) {
-    stop("Please install the 'RColorBrewer' package to use this function.")
-  }
   
   # Create the output directory if it doesn't exist
   if (!dir.exists(output_dir)) {
@@ -33,6 +29,7 @@ plot_filtering_bench <- function(df, output_dir, plot_type = "all", plot_title =
   }
   
   # Filter out the "Unfiltered" network if include_unfiltered is FALSE
+  str(df)
   if (!include_unfiltered) {
     df <- df %>% filter(Network != "Unfiltered")
   }
