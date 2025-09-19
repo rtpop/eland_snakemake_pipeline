@@ -101,7 +101,10 @@ REG_TAG = config["regulator_tag"]
 TAR_TAG = config["target_tag"]
 BIHIDEF_RUN_DIR = os.path.join(BIHIDEF_DIR, "C" + str(MAX_COMMUNITIES) + "_R" + str(MAX_RESOLUTION))
 GENE_COMMUNITIES = os.path.join(BIHIDEF_RUN_DIR, TAR_TAG + ".nodes")
-
+SELECTED_COMMUNITIES = os.path.join(BIHIDEF_RUN_DIR, TAR_TAG + "_selected_communities.gmt")
+COMMUNITY_STATS = os.path.join(BIHIDEF_RUN_DIR, TAR_TAG + "_community_stats.txt")
+MAX_GENES = config["max_genes"]
+MIN_GENES = config["min_genes"]
 
 ##-------##
 ## RULES ##
@@ -113,15 +116,10 @@ GENE_COMMUNITIES = os.path.join(BIHIDEF_RUN_DIR, TAR_TAG + ".nodes")
 
 rule all:
     input:
-        # PROCESS_GTEX_LOG, \
-        # expand(PANDA_NET_FILTERED, tissue_type = TISSUE), \
-        *( [expand(FILTERING_BENCH, tissue_type = TISSUE, bench_resolution = BENCH_RESOLUTION)] if config["benchmark"] else [] ), \
-        *( [expand(FILTERING_BENCH_DF, tissue_type = TISSUE)] if config["benchmark"] else [] ), \
-        FILTERING_BENCH_CONSOLIDATED, \
         *( [expand(BENCHMARK_PLOT, tissue_type = TISSUE)] if config["benchmark"] else [] ), \
         FILTERING_HEATMAP, \
-        expand(GENE_COMMUNITIES, tissue_type = TISSUE)
-
+        expand(SELECTED_COMMUNITIES, tissue_type = TISSUE), \
+        expand(COMMUNITY_STATS, tissue_type = TISSUE)
         # temp ones so I don't have to rerun everything all the time
 
 ## ---------------------------- ##
@@ -463,47 +461,47 @@ rule run_bihidef:
         --output_dir {params.out_dir} --output_prefix_reg {params.output_prefix_reg} --output_prefix_tar {params.output_prefix_target} --filtering_method {params.filtering_method}"
         """
 
-# ## --------------------- ##
-# ## Selecting communities ##
-# ## --------------------- ##
+## --------------------- ##
+## Selecting communities ##
+## --------------------- ##
 
-# rule select_communities:
-#     """
-#     This rule selects the communities from the BiHiDeF output and formats them as a GMT file.
+rule select_communities:
+    """
+    This rule selects the communities from the BiHiDeF output and formats them as a GMT file.
 
-#     Inputs
-#     ------
-#     GENE_COMMUNITIES:
-#         A TXT file with the communities from BiHiDeF.
-#     ------
-#     Outputs
-#     -------
-#     SELECTED_COMMUNITIES:
-#         A TXT file with the selected communities.
-#     COMMUNITY_STATS:
-#         A TXT file with statistics about the communities.
-#     """
-#     input:
-#         GENE_COMMUNITIES
-#     output:
-#         selected_communities = SELECTED_COMMUNITIES, \
-#         stats = COMMUNITY_STATS
-#     params:
-#         script = os.path.join(SRC, "eland/select_communities.py"), \
-#         max_genes = MAX_GENES, \
-#         min_genes = MIN_GENES
-#     container:
-#         PYTHON_CONTAINER
-#     message:
-#         "; Selecting communities from {input} with params:" \
-#             "--max_size {params.max_genes}" \
-#             "--min_size {params.min_genes}" \
-#             "--log {output.stats}"
-#             "output {output.selected_communities}"
-#     shell:
-#         """
-#         python {params.script} {input} {output.selected_communities} --log {output.stats} --max_size {params.max_genes} --min_size {params.min_genes}
-#         """
+    Inputs
+    ------
+    GENE_COMMUNITIES:
+        A TXT file with the communities from BiHiDeF.
+    ------
+    Outputs
+    -------
+    SELECTED_COMMUNITIES:
+        A TXT file with the selected communities.
+    COMMUNITY_STATS:
+        A TXT file with statistics about the communities.
+    """
+    input:
+        GENE_COMMUNITIES
+    output:
+        selected_communities = SELECTED_COMMUNITIES, \
+        stats = COMMUNITY_STATS
+    params:
+        script = os.path.join(SRC, "hedgehog/select_communities.py"), \
+        max_genes = MAX_GENES, \
+        min_genes = MIN_GENES
+    container:
+        PYTHON_CONTAINER
+    message:
+        "; Selecting communities from {input} with params:" \
+            "--max_size {params.max_genes}" \
+            "--min_size {params.min_genes}" \
+            "--log {output.stats}"
+            "output {output.selected_communities}"
+    shell:
+        """
+        python {params.script} {input} {output.selected_communities} --log {output.stats} --max_size {params.max_genes} --min_size {params.min_genes}
+        """
 
 # ## ---------------------------- ##
 # ## GO enrichment of communities ##

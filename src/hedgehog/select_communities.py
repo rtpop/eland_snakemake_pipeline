@@ -1,7 +1,7 @@
 import argparse
-from eland import process_bihidef
+from hedgehog import process_bihidef
 
-def parese_args():
+def parse_args():
     parser = argparse.ArgumentParser("Select communities")
     parser.add_argument("communities", type = str, help="Input file")
     parser.add_argument("output_gmt", type = str, help="File name for the gmt file to be saved.")
@@ -11,7 +11,7 @@ def parese_args():
     return parser.parse_args()
 
 def main():
-    args = parese_args()
+    args = parse_args()
     
     # Select communities
     communities = process_bihidef.select_communities(args.communities, args.min_size, args.max_size, args.logs)
