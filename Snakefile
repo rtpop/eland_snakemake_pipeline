@@ -100,7 +100,7 @@ MAX_COMMUNITIES = config["max_communities"]
 REG_TAG = config["regulator_tag"]
 TAR_TAG = config["target_tag"]
 BIHIDEF_RUN_DIR = os.path.join(BIHIDEF_DIR, "C" + str(MAX_COMMUNITIES) + "_R" + str(MAX_RESOLUTION))
-GENE_COMMUNITIES = os.path.join(BIHIDEF_RUN_DIR, "gene_communities.txt")
+GENE_COMMUNITIES = os.path.join(BIHIDEF_RUN_DIR, TAR_TAG + ".nodes")
 
 
 ##-------##
