@@ -62,6 +62,7 @@ PROCESS_GTEX_LOG = os.path.join(DATA_DIR, config["processing_log"])
 ## ------------------------------------------------ ##
 
 FILTERING_METHOD = config["filtering"]
+FILTERING_BIHIDEF = config["filtering_bihidef"]
 BENCHMARK = config["benchmark"]
 
 # set benchmarking params if benchmarking is enabled
@@ -443,7 +444,8 @@ rule run_bihidef:
         output_prefix_reg = REG_TAG, \
         output_prefix_target = TAR_TAG, \
         out_dir = BIHIDEF_RUN_DIR, \
-        log_file = os.path.join(BIHIDEF_RUN_DIR, "run_log.log")
+        log_file = os.path.join(BIHIDEF_RUN_DIR, "run_log.log"), \
+        filtering_method = FILTERING_BIHIDEF
     container:
         PYTHON_CONTAINER
     message:
@@ -456,8 +458,9 @@ rule run_bihidef:
     shell:
         """
         mkdir -p {params.out_dir}
+
         python {params.measure_script} {params.log_file} "python {params.run_script} {input} --comm_mult {params.max_communities} --max_res {params.max_resolution} \
-        --output_dir {params.out_dir} --output_prefix_reg {params.output_prefix_reg} --output_prefix_tar {params.output_prefix_target}"
+        --output_dir {params.out_dir} --output_prefix_reg {params.output_prefix_reg} --output_prefix_tar {params.output_prefix_target} --filtering_method {params.filtering_method}"
         """
 
 # ## --------------------- ##

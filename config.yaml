@@ -33,7 +33,7 @@ processing_log: "process_gtex.log"
 ## ------------------------------ ##
 ## Filtering and benchmark params ##
 ## ------------------------------ ##
-filtering: "prior" # options: prior, hedgehog, both
+filtering: "prior" # options: prior, hedgehog, both; note that you must set the filtering for bihidef separately (see below).
 benchmark: True # whether to run the filtering benchmark
 bench_resolution: [0.1, 0.5, 1, 5, 10] # resolution parameter for the BRIM algorithm to calculate modularity
 plot_unfiltered: False # whether to plot the unfiltered networks in the benchmark
@@ -47,7 +47,7 @@ min_resolution: 0.001 # the minimum resolution parameter for bihidef (not used i
 resolution_step: 0.001 # the step size for the resolution parameter (not used in the snakemake atm)
 target_tag: "gene"
 regulator_tag: "TF"
-
+filtering_bihidef: "prior" # options: prior, hedgehog; BiHiDef does not support both filtering methods at the same time. It is recommended to use the benchmarking to determine a filtering method for BiHiDef.
 # the minimum and maximum number of genes in a community
 min_genes: 10
 max_genes: 200
