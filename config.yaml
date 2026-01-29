@@ -1,7 +1,7 @@
 ##------------##
 ## Containers ##
 ##------------##
-python_container: "docker://rtpop/hedgehog-run:1.1"
+python_container: "docker://rtpop/hedgehog-run:1.2"
 r_container: "docker://rtpop/hedgehog-downstream:1.0"
 
 ##-------------##
