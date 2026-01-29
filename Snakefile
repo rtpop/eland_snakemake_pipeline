@@ -43,6 +43,7 @@ DATA_DIR = config["data_dir"]
 OUTPUT_DIR = config["output_dir"]
 SRC = config["src_dir"]
 HEDGEHOG_DIR = os.path.join(OUTPUT_DIR, "{tissue_type}", "hedgehog")
+GO_DIR = os.path.join(OUTPUT_DIR, "{tissue_type}", "go_enrichment")
 
 # Other params
 DELIMITER = config["delimiter"]
@@ -106,6 +107,17 @@ COMMUNITY_STATS = os.path.join(BIHIDEF_RUN_DIR, TAR_TAG + "_community_stats.txt"
 MAX_GENES = config["max_genes"]
 MIN_GENES = config["min_genes"]
 
+## ------------- ##
+## GO enrichment ##
+## ------------- ##
+GENE_BACKGROUND = os.path.join(DATA_DIR, config["bg_file"])
+GO_ENRICHMENT = os.path.join(GO_DIR, config["go_results"])
+AUTO_BG = config["auto_bg"]
+SAVE_ALL = config["save_all"]
+SIG_THRESH = config["sig_thresh"]
+STATISTIC = config["statistic"]
+ALG = config["algorithm"]
+
 ##-------##
 ## RULES ##
 ##-------##
@@ -119,7 +131,8 @@ rule all:
         *( [expand(BENCHMARK_PLOT, tissue_type = TISSUE)] if config["benchmark"] else [] ), \
         FILTERING_HEATMAP, \
         expand(SELECTED_COMMUNITIES, tissue_type = TISSUE), \
-        expand(COMMUNITY_STATS, tissue_type = TISSUE)
+        expand(COMMUNITY_STATS, tissue_type = TISSUE), \
+        expand(GO_ENRICHMENT, tissue_type = TISSUE)
         # temp ones so I don't have to rerun everything all the time
 
 ## ---------------------------- ##
@@ -503,9 +516,14 @@ rule select_communities:
         python {params.script} {input} {output.selected_communities} --log {output.stats} --max_size {params.max_genes} --min_size {params.min_genes}
         """
 
-# ## ---------------------------- ##
-# ## GO enrichment of communities ##
-# ## ---------------------------- ##
+## ---------------------------------- ##
+## Compare communities across tissues ##
+## ---------------------------------- ##
+
+
+## ---------------------------- ##
+## GO enrichment of communities ##
+## ---------------------------- ##
 
 # rule go_enrichment:
 #     """
@@ -536,7 +554,7 @@ rule select_communities:
 #         algorithm = ALG
 
 #     container:
-#         ANALYSIS_CONTAINER
+#         R_CONTAINER
 #     message:
 #         "; Running GO enrichment with script {params.script}" \
 #             "--gmt-file {input.gmt} " \

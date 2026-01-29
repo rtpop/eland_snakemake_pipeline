@@ -72,6 +72,7 @@ save_all: True # if the GO results should be saved for each community
 sig_thresh: 0.05 # p value threshold for significance
 statistic: "fisher" # test statistic to be used
 algorithm: "classic" # topGO algorithm to be used
+go_results: "go_enrichment_results.txt" # file to save GO enrichment results
 
 ## ----------------------- ##
 ## Top mutated communities ##
