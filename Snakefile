@@ -132,7 +132,7 @@ rule all:
         FILTERING_HEATMAP, \
         expand(SELECTED_COMMUNITIES, tissue_type = TISSUE), \
         expand(COMMUNITY_STATS, tissue_type = TISSUE), \
-        expand(GO_ENRICHMENT, tissue_type = TISSUE)
+        #expand(GO_ENRICHMENT, tissue_type = TISSUE)
         # temp ones so I don't have to rerun everything all the time
 
 ## ---------------------------- ##
