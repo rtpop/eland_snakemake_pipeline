@@ -3,7 +3,7 @@ FROM python:3.10.16
 ## ------------ ##
 ## How to build ##
 ## ------------ ##
-# sudo docker build --file containers/eland-run/Dockerfile --no-cache -t rtpop/eland-run:tag --progress=plain . 2>&1 | tee containers/eland-run/logs/eland-run:tag
+# sudo docker build --file containers/hedgehog-run/Dockerfile --no-cache -t rtpop/hedgehog-run:tag --progress=plain . 2>&1 | tee containers/hedgehog-run/logs/hedgehog-run:tag
 
 ## --------------------------- ##
 ## Install system requirements ##
@@ -77,8 +77,15 @@ RUN pip install .
 ## ------------- ##
 
 WORKDIR /opt/software
-RUN git clone https://github.com/rtpop/ELAND.git
-WORKDIR /opt/software/ELAND
+RUN git clone https://github.com/rtpop/HEDGEHOG.git
+WORKDIR /opt/software/HEDGEHOG
+RUN git checkout feat-qscore
+RUN pip install .
+
+# install netzoopy from my fork for now
+WORKDIR /opt/software
+RUN git clone https://github.com/rtpop/netZooPy.git
+WORKDIR /opt/software/netZooPy
 RUN pip install .
 
 ## ----------------------------------------- ##
@@ -88,7 +95,8 @@ RUN pip install .
 ## version of netZooPy                       ##
 ## ----------------------------------------- ##
 
-RUN pip install --no-cache-dir numpy==1.24.4 scipy==1.13.0 netZooPy==0.10.8
+RUN pip install --no-cache-dir numpy==1.24.4 scipy==1.13.0 
+# netZooPy==0.10.8
 
 ## -------------------------- ##
 ## Set matplotlib environment ##
