@@ -1,8 +1,8 @@
 ##------------##
 ## Containers ##
 ##------------##
-python_container: "docker://rtpop/eland-run:0.0.22"
-analysis_container: "docker://rtpop/eland-downstream:0.0.2"
+python_container: "docker://rtpop/hedgehog-run:1.0"
+analysis_container: "docker://rtpop/hedgehog-downstream:1.0"
 
 ##-------------##
 ## Directories ##
@@ -10,28 +10,37 @@ analysis_container: "docker://rtpop/eland-downstream:0.0.2"
 src: "src" # Code directory
 data_dir: "data"
 output_dir: "output" # this will be a parent directory for different runs
-cancer: "breast" # cancer type
+# list of tissues
+tissue: ["Adipose_subcutaneous", "Adipose_visceral", "Adrenal_gland", "Artery_aorta",
+  "Artery_coronary", "Artery_tibial", "Brain_basal_ganglia", "Brain_cerebellum", "Brain_other",
+  "Breast", "Colon_sigmoid", "Colon_transverse", "Esophagus_mucosa", "Esophagus_muscularis",
+  "Heart_atrial_appendage","Heart_left_ventricle", "Intestine_terminal_ileum",
+  "Kidney_cortex", "Liver", "Lung", "Minor_salivary_gland", "Ovary", "Pancreas", "Pituitary",
+  "Prostate", "Skin", "Spleen","Stomach", "Testis", "Thyroid", "Tibial_nerve","Uterus", "Vagina", "Whole_blood"]
+#tissue: ["Liver"]
 src_dir: "src"
 eland_dir: "eland"
 
 ##-------------##
 ## Input files ##
 ##-------------##
-sisana_config: "sisana_params.yml"
-exp_file: "exp_no_header"
-motif_prior_file: "motif_prior_names_2024"
-ppi_prior_file: "ppi_prior_2024"
+# sisana_config: "sisana_params.yml"
+# exp_file: "exp_no_header"
+motif_prior_file: "motif_prior.txt"
+# ppi_prior_file: "ppi_prior_2024"
 
-## ---------------- ##
-## Benchmark params ##
-## ---------------- ##
-bench_resolution: 1 # resolution parameter for the BRIM algorithm to calculate modularity
+## ------------------------------ ##
+## Filtering and benchmark params ##
+## ------------------------------ ##
+prior_only: True
+bench_resolution: [0.1, 0.5, 1, 5, 10] # resolution parameter for the BRIM algorithm to calculate modularity
+plot_unfiltered: False # whether to plot the unfiltered networks in the benchmark
 
 ##--------------------##
 ## BiHiDef parameters ##
 ##--------------------##
-max_communities: 2 # multiplier for the maximum number of communities passed to condor
-max_resolution: 10 # the maximum resolution parameter for bihidef
+max_communities: 3 # multiplier for the maximum number of communities passed to condor
+max_resolution: 5 # the maximum resolution parameter for bihidef
 min_resolution: 0.001 # the minimum resolution parameter for bihidef (not used in the snakemake atm)
 resolution_step: 0.001 # the step size for the resolution parameter (not used in the snakemake atm)
 target_tag: "gene"
