@@ -1,7 +1,7 @@
 ##------------##
 ## Containers ##
 ##------------##
-python_container: "docker://rtpop/hedgehog-run:1.2"
+python_container: "docker://rtpop/hedgehog-run:qscore-test-0.3"
 r_container: "docker://rtpop/hedgehog-downstream:1.0"
 
 ##-------------##
@@ -14,12 +14,13 @@ src_dir: "src"
 
 
 # list of tissues
-tissue: ["Adipose_subcutaneous", "Adipose_visceral", "Adrenal_gland", "Artery_aorta",
-  "Artery_coronary", "Artery_tibial", "Brain_basal_ganglia", "Brain_cerebellum", "Brain_other",
-  "Breast", "Colon_sigmoid", "Colon_transverse", "Esophagus_mucosa", "Esophagus_muscularis",
-  "Heart_atrial_appendage","Heart_left_ventricle", "Intestine_terminal_ileum",
-  "Kidney_cortex", "Liver", "Lung", "Minor_salivary_gland", "Ovary", "Pancreas", "Pituitary",
-  "Prostate", "Skin", "Spleen","Stomach", "Testis", "Thyroid", "Tibial_nerve","Uterus", "Vagina", "Whole_blood"]
+# tissue: ["Adipose_subcutaneous", "Adipose_visceral", "Adrenal_gland", "Artery_aorta",
+#   "Artery_coronary", "Artery_tibial", "Brain_basal_ganglia", "Brain_cerebellum", "Brain_other",
+#   "Breast", "Colon_sigmoid", "Colon_transverse", "Esophagus_mucosa", "Esophagus_muscularis",
+#   "Heart_atrial_appendage","Heart_left_ventricle", "Intestine_terminal_ileum",
+#   "Kidney_cortex", "Liver", "Lung", "Minor_salivary_gland", "Ovary", "Pancreas", "Pituitary",
+#   "Prostate", "Skin", "Spleen","Stomach", "Testis", "Thyroid", "Tibial_nerve","Uterus", "Vagina", "Whole_blood"]
+tissue: ["Artery_aorta"]
 
 
 ## ---------- ##
@@ -72,7 +73,7 @@ save_all: True # if the GO results should be saved for each community
 sig_thresh: 0.05 # p value threshold for significance
 statistic: "fisher" # test statistic to be used
 algorithm: "classic" # topGO algorithm to be used
-go_results: "go_enrichment_results.txt" # file to save GO enrichment results
+go_results: "go_enrichment_results_bug_fix_q_score.txt" # file to save GO enrichment results
 
 ## ----------------------- ##
 ## Top mutated communities ##
