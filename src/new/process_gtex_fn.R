@@ -1,3 +1,15 @@
+required_libraries <- c("data.table")
+
+for (library in required_libraries) {
+    suppressPackageStartupMessages(library(library, character.only = TRUE, quietly = TRUE))
+}
+
+## Options
+options(stringsAsFactors = FALSE)
+
+data <- snakamake@input$gtex_data
+extract_edges <- snakemake@params$extract_edges
+
 
 #' @name get_gtex_data
 #' 
