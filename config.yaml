@@ -7,7 +7,22 @@ r_container: "docker://rtpop/hedgehog-downstream:1.0"
 ##-------------##
 ## Directories ##
 ##-------------##  
-src: "src" # Code directory
 data_dir: "data"
-output_dir: "output" # this will be a parent directory for different runs
-src_dir: "src"
+output_dir: "output/new" # this will be a parent directory for different runs
+src_dir: "src/new"
+
+# list of tissues
+# tissue: ["Adipose_subcutaneous", "Adipose_visceral", "Adrenal_gland", "Artery_aorta",
+#   "Artery_coronary", "Artery_tibial", "Brain_basal_ganglia", "Brain_cerebellum", "Brain_other",
+#   "Breast", "Colon_sigmoid", "Colon_transverse", "Esophagus_mucosa", "Esophagus_muscularis",
+#   "Heart_atrial_appendage","Heart_left_ventricle", "Intestine_terminal_ileum",
+#   "Kidney_cortex", "Liver", "Lung", "Minor_salivary_gland", "Ovary", "Pancreas", "Pituitary",
+#   "Prostate", "Skin", "Spleen","Stomach", "Testis", "Thyroid", "Tibial_nerve","Uterus", "Vagina", "Whole_blood"]
+tissue: ["Artery_aorta"]
+
+## ------------------------------ ##
+## Download and process GTEx data ##
+## ------------------------------ ##
+gtex_data_file: "GTEx_PANDA_net.RData"
+processing_log: "process_gtex.log"
+motif_prior: "motif_prior.txt"
