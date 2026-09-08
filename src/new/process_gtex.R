@@ -7,8 +7,9 @@ for (library in required_libraries) {
 ## Options
 options(stringsAsFactors = FALSE)
 
-data <- snakamake@input$gtex_data
+data <- snakemake@input$gtex_data
 extract_edges <- snakemake@params$extract_edges
+out_dir <- snakemake@params$out_dir
 prior <- snakemake@output$prior
 log <- snakemake@output$output_log
 
@@ -30,10 +31,10 @@ get_gtex_data <- function(data, extract_edges = TRUE, prior, log, out_dir = "dat
     # Get the gene names
     gene_names <- genes$Symbol[match(edges[,2], genes$Name)]
     edges[,2] <- gene_names
-    data.table::fwrite(edges, file = file.path(out_dir, prior), sep = ",", row.names = FALSE, col.names = FALSE)
+    data.table::fwrite(edges, file = file.path(prior), sep = ",", row.names = FALSE, col.names = FALSE)
 
     # Initialise log file
-    log_file <- file.path(out_dir, log)
+    log_file <- file.path(log)
     
     if (file.exists(log_file)) {
         file.remove(log_file)
@@ -70,3 +71,6 @@ get_gtex_data <- function(data, extract_edges = TRUE, prior, log, out_dir = "dat
     }
     cat("Processing completed at ", Sys.time(),".\n", file = log_file, append = TRUE)
 }
+
+# run
+get_gtex_data(data = data, extract_edges = extract_edges, prior = prior, log = log, out_dir = out_dir)

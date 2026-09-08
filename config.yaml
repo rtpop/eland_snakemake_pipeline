@@ -20,9 +20,20 @@ src_dir: "src/new"
 #   "Prostate", "Skin", "Spleen","Stomach", "Testis", "Thyroid", "Tibial_nerve","Uterus", "Vagina", "Whole_blood"]
 tissue: ["Artery_aorta"]
 
+## Delimiter
+delimiter: ","
+
 ## ------------------------------ ##
 ## Download and process GTEx data ##
 ## ------------------------------ ##
 gtex_data_file: "GTEx_PANDA_net.RData"
 processing_log: "process_gtex.log"
 motif_prior: "motif_prior.txt"
+
+##-------------------------------------##
+## Filtering PANDA network for BiHiDef ##
+##-------------------------------------##
+panda_net_file: "panda_network_edgelist.txt"
+panda_net_filtered_file: "panda_network_filtered_edgelist.txt"
+filtering_method: "both" # options: prior, hedgehog, both; note that you must set the filtering for bihidef separately (see below).
+

@@ -44,14 +44,33 @@ GO_DIR = os.path.join(OUTPUT_DIR, "{tissue_type}", "go_enrichment")
 
 # Other params
 DELIMITER = config["delimiter"]
-TISSUE = config["tissue"]
+TISSUE = config["tissue"] # wildcard
 
 ## ------------------------------ ##
 ## Download and process GTEx data ##
 ## ------------------------------ ##
-GTEX_DATA_FILE = os.path.join(DATA_DIR, config["gtex_data_file"])
+GTEX_DATA_FILE = os.path.join(DATA_DIR, "download", config["gtex_data_file"])
 PROCESSING_LOG = os.path.join(DATA_DIR, config["processing_log"])
 MOTIF_PRIOR = os.path.join(DATA_DIR, config["motif_prior"])
+
+##-------------------------------------##
+## Filtering PANDA network for BiHiDef ##
+##-------------------------------------##
+PANDA_NET = os.path.join(DATA_DIR, "{tissue_type}", config["panda_net_file"])
+FILTERING_METHOD = config["filtering_method"]
+
+# set filtering params
+if FILTERING_METHOD == "both":
+    PANDA_NET_FILTERED = [
+        os.path.join(HEDGEHOG_DIR, "panda_network_filtered_prior.txt"),
+        os.path.join(HEDGEHOG_DIR, "panda_network_filtered_hedgehog.txt")
+    ]
+elif FILTERING_METHOD == "prior":
+    PANDA_NET_FILTERED = [os.path.join(HEDGEHOG_DIR, "panda_network_filtered_prior.txt")]
+elif FILTERING_METHOD == "hedgehog":
+    PANDA_NET_FILTERED = [os.path.join(HEDGEHOG_DIR, "panda_network_filtered_hedgehog.txt")]
+else:
+    raise ValueError("Unknown filtering method: {}".format(FILTERING_METHOD))
 
 ##-------##
 ## RULES ##
@@ -59,13 +78,13 @@ MOTIF_PRIOR = os.path.join(DATA_DIR, config["motif_prior"])
 
 rule all:
     input:
-
+        expand(PANDA_NET_FILTERED, tissue_type=TISSUE)
 ## ---------------------------- ##
 ## Download & process GTEX data ##
 ## ---------------------------- ##
 
 rule downaload_gtex:
-       output:
+    output:
         GTEX_DATA_FILE
     params:
         out_dir = os.path.join(DATA_DIR, "download"), \
@@ -88,10 +107,28 @@ rule process_gtex:
         prior = MOTIF_PRIOR
     params:
         out_dir = DATA_DIR,
-        script = os.path.join(SRC, "process_gtex.R")
+        extract_edges = True
     container:
         R_CONTAINER
     message:
         "; Processing GTEx data."
     script:
-        {params.script}
+        os.path.join(SRC, "process_gtex.R")
+
+##-------------------------------------##
+## Filtering PANDA network for BiHiDef ##
+##-------------------------------------##
+rule process_and_filter_panda:
+    input:
+        panda = PANDA_NET,
+        prior = MOTIF_PRIOR
+    output:
+        filtered_panda = PANDA_NET_FILTERED
+    params:
+        out_dir = os.path.join(HEDGEHOG_DIR),
+        delimiter = DELIMITER,
+        filtering_method = FILTERING_METHOD
+    container:
+        PYTHON_CONTAINER
+    script:
+        os.path.join(SRC, "filter_panda.py")
