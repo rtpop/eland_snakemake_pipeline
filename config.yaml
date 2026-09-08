@@ -1,0 +1,13 @@
+##------------##
+## Containers ##
+##------------##
+python_container: "docker://rtpop/hedgehog-run:qscore-test-0.3"
+r_container: "docker://rtpop/hedgehog-downstream:1.0"
+
+##-------------##
+## Directories ##
+##-------------##  
+src: "src" # Code directory
+data_dir: "data"
+output_dir: "output" # this will be a parent directory for different runs
+src_dir: "src"
