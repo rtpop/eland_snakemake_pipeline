@@ -28,7 +28,7 @@ def main():
     selected_file = os.path.join("../../../../../", selected_file)
 
     # run bihidef
-    bihidef.bihidef(filename = selected_file, maxres = args.max_res, comm_mult = args.comm_mult, oR= args.output_prefix_reg, oT = args.output_prefix_tar)
+    bihidef.bihidef(filename = selected_file, maxres = args.max_res, comm_mult = args.comm_mult, oR= args.output_prefix_reg, oT = args.output_prefix_tar, processes = 1)
 
 if __name__ == "__main__":
     main()
