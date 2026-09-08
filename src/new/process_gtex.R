@@ -9,6 +9,8 @@ options(stringsAsFactors = FALSE)
 
 data <- snakamake@input$gtex_data
 extract_edges <- snakemake@params$extract_edges
+prior <- snakemake@output$prior
+log <- snakemake@output$output_log
 
 
 #' @name get_gtex_data
@@ -16,8 +18,11 @@ extract_edges <- snakemake@params$extract_edges
 #' @param data RData file containing GTEx data.
 #' @param extract_edges Logical. If edges should be extracted for each tissue. If FALSE,
 #' expression will be extracted instead
+#' @param prior Output file for the motif prior.
+#' @param log Output file for the processing log.
+#' @param out_dir Output directory.
 
-get_gtex_data <- function(data, extract_edges = TRUE, out_dir = "data/") {
+get_gtex_data <- function(data, extract_edges = TRUE, prior, log, out_dir = "data/") {
     # Load the data
     load(data)
 
@@ -25,10 +30,10 @@ get_gtex_data <- function(data, extract_edges = TRUE, out_dir = "data/") {
     # Get the gene names
     gene_names <- genes$Symbol[match(edges[,2], genes$Name)]
     edges[,2] <- gene_names
-    data.table::fwrite(edges, file = file.path(out_dir, "motif_prior.txt"), sep = ",", row.names = FALSE, col.names = FALSE)
+    data.table::fwrite(edges, file = file.path(out_dir, prior), sep = ",", row.names = FALSE, col.names = FALSE)
 
     # Initialise log file
-    log_file <- file.path(out_dir, "process_gtex.log")
+    log_file <- file.path(out_dir, log)
     
     if (file.exists(log_file)) {
         file.remove(log_file)
